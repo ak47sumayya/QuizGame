@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Master - Results</title>
+   <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div class="result-container">
+        <div class="result-content">
+            <div class="trophy-icon">🏆</div>
+            
+            <h1 class="result-title">Quiz Complete!</h1>
+            <p class="result-subtitle">Great job, <span class="username-highlight">{{ username }}</span>!</p>
+            
+            <div class="score-card">
+                <div class="main-score">
+                    <span class="score-number">{{ score }}</span>
+                    <span class="score-divider">/</span>
+                    <span class="score-total">{{ total }}</span>
+                </div>
+                <p class="score-label">Correct Answers</p>
+                
+                <div class="score-details">
+                    <div class="score-detail">
+                        <div class="detail-value correct">{{ score }}</div>
+                        <div class="detail-label">Correct</div>
+                    </div>
+                    <div class="score-detail">
+                        <div class="detail-value wrong">{{ total - score }}</div>
+                        <div class="detail-label">Wrong</div>
+                    </div>
+                    <div class="score-detail">
+                        <div class="detail-value percentage">{{ percentage }}%</div>
+                        <div class="detail-label">Accuracy</div>
+                    </div>
+                </div>
+                
+                <div class="performance-message">
+                    {% if percentage >= 80 %}
+                        <p class="message excellent">🌟 Excellent! Outstanding performance!</p>
+                    {% elif percentage >= 60 %}
+                        <p class="message good">👍 Good job! Keep it up!</p>
+                    {% elif percentage >= 40 %}
+                        <p class="message average">💪 Not bad! Room for improvement!</p>
+                    {% else %}
+                        <p class="message tryagain">📚 Keep practicing! You'll do better!</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="result-actions">
+                <a href="/categories" class="action-btn primary-btn">
+                    <span>Try Another Category</span>
+                    <svg class="btn-icon" viewBox="0 0 24 24">
+                        <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" fill="none" stroke-width="2"/>
+                    </svg>
+                </a>
+                <a href="/" class="action-btn secondary-btn">
+                    <span>Back to Home</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Completion Popup Modal -->
+    <div class="popup-overlay" id="popup">
+        <div class="popup-content">
+            <div class="popup-icon">⭐</div>
+            <h2 class="popup-title">Congratulations!</h2>
+            <p class="popup-message">{{ username }}, your quiz is complete!</p>
+            <button class="popup-btn" onclick="closePopup()">View Results</button>
+        </div>
+    </div>
+    
+    <script>
+        // Show popup automatically when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('popup').classList.add('active');
+            }, 300);
+        });
+        
+        // Close popup function
+        function closePopup() {
+            document.getElementById('popup').classList.remove('active');
+        }
+    </script>
+   <script src="../static/script.js"></script>
+</body>
+</html>
