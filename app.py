@@ -1,19 +1,46 @@
+import random
 from flask import Flask, render_template, request, session, redirect, url_for
 
 app = Flask(__name__)
-app.secret_key = 'quiz_master_secret_key_2024'
+app.secret_key = 'quiz_master_secret_key_2026'
 
-# Quiz Data - 6 Categories with 8 Questions Each
+# 10 Questions per category with Subscript and Superscript tags
 QUIZ_DATA = {
     'History': [
         {'question': 'When did World War II end?', 'options': ['1943', '1944', '1945', '1946'], 'correct': 2},
-        {'question': 'Who was the first President of the United States?', 'options': ['Thomas Jefferson', 'George Washington', 'John Adams', 'Benjamin Franklin'], 'correct': 1},
+        {'question': 'Who was the first President of the USA?', 'options': ['Jefferson', 'Washington', 'Adams', 'Franklin'], 'correct': 1},
         {'question': 'In which year did the Titanic sink?', 'options': ['1910', '1911', '1912', '1913'], 'correct': 2},
         {'question': 'Who built the Taj Mahal?', 'options': ['Akbar', 'Shah Jahan', 'Aurangzeb', 'Babur'], 'correct': 1},
-        {'question': 'When did Pakistan gain independence?', 'options': ['1945', '1946', '1947', '1948'], 'correct': 2},
-        {'question': 'Who was the first Caliph of Islam?', 'options': ['Hazrat Umar', 'Hazrat Abu Bakr', 'Hazrat Usman', 'Hazrat Ali'], 'correct': 1},
-        {'question': 'In which year did World War I begin?', 'options': ['1912', '1914', '1916', '1918'], 'correct': 1},
-        {'question': 'Who discovered America?', 'options': ['Vasco da Gama', 'Christopher Columbus', 'Ferdinand Magellan', 'Marco Polo'], 'correct': 1}
+        {'question': 'Pakistan independence year?', 'options': ['1945', '1946', '1947', '1948'], 'correct': 2},
+        {'question': 'First Caliph of Islam?', 'options': ['Hazrat Umar', 'Hazrat Abu Bakr', 'Hazrat Usman', 'Hazrat Ali'], 'correct': 1},
+        {'question': 'World War I begin year?', 'options': ['1912', '1914', '1916', '1918'], 'correct': 1},
+        {'question': 'Who discovered America?', 'options': ['Vasco da Gama', 'Columbus', 'Magellan', 'Polo'], 'correct': 1},
+        {'question': 'French Revolution year?', 'options': ['1789', '1799', '1809', '1779'], 'correct': 0},
+        {'question': 'The Indus Valley Civilization flourished around?', 'options': ['2500 BC', '1500 BC', '3500 BC', '500 BC'], 'correct': 0}
+    ],
+    'Science': [
+        {'question': 'Chemical symbol for water?', 'options': ['H<sub>2</sub>O', 'CO<sub>2</sub>', 'O<sub>2</sub>', 'N<sub>2</sub>'], 'correct': 0},
+        {'question': 'Formula for Sulfuric Acid?', 'options': ['HCl', 'H<sub>2</sub>SO<sub>4</sub>', 'HNO<sub>3</sub>', 'NaOH'], 'correct': 1},
+        {'question': 'Powerhouse of the cell?', 'options': ['Nucleus', 'Mitochondria', 'Ribosome', 'Chloroplast'], 'correct': 1},
+        {'question': 'Human body bone count?', 'options': ['196', '206', '216', '226'], 'correct': 1},
+        {'question': 'Boiling point of water?', 'options': ['90°C', '100°C', '110°C', '120°C'], 'correct': 1},
+        {'question': 'Vitamin from Sun?', 'options': ['Vit A', 'Vit B', 'Vit C', 'Vit D'], 'correct': 3},
+        {'question': 'Symbol for Glucose?', 'options': ['C<sub>6</sub>H<sub>12</sub>O<sub>6</sub>', 'CH<sub>4</sub>', 'C<sub>2</sub>H<sub>5</sub>OH', 'CO<sub>2</sub>'], 'correct': 0},
+        {'question': 'Gas used in fire extinguishers?', 'options': ['O<sub>2</sub>', 'N<sub>2</sub>', 'CO<sub>2</sub>', 'He'], 'correct': 2},
+        {'question': 'Speed of light?', 'options': ['300k km/s', '150k km/s', '450k km/s', '600k km/s'], 'correct': 0},
+        {'question': 'Main gas in Air?', 'options': ['Oxygen', 'Nitrogen', 'Carbon', 'Argon'], 'correct': 1}
+    ],
+    'Mathematics': [
+        {'question': 'What is 15 × 8?', 'options': ['110', '120', '125', '130'], 'correct': 1},
+        {'question': 'Value of π (pi)?', 'options': ['2.14', '3.14', '4.14', '5.14'], 'correct': 1},
+        {'question': 'Square root of 144?', 'options': ['10', '11', '12', '13'], 'correct': 2},
+        {'question': '25% of 200?', 'options': ['25', '50', '75', '100'], 'correct': 1},
+        {'question': 'Sides in a hexagon?', 'options': ['5', '6', '7', '8'], 'correct': 1},
+        {'question': 'What is 2<sup>3</sup>?', 'options': ['6', '8', '9', '12'], 'correct': 1},
+        {'question': 'Sum of angles in triangle?', 'options': ['90°', '180°', '270°', '360°'], 'correct': 1},
+        {'question': 'Solve: x<sup>2</sup> = 49', 'options': ['5', '6', '7', '8'], 'correct': 2},
+        {'question': 'What is 10<sup>0</sup>?', 'options': ['0', '1', '10', '100'], 'correct': 1},
+        {'question': 'Area of circle formula?', 'options': ['2πr', 'πr<sup>2</sup>', 'πd', 'bh'], 'correct': 1}
     ],
     'General Knowledge': [
         {'question': 'What is the capital of France?', 'options': ['London', 'Berlin', 'Paris', 'Madrid'], 'correct': 2},
@@ -25,17 +52,7 @@ QUIZ_DATA = {
         {'question': 'What is the currency of Japan?', 'options': ['Yuan', 'Won', 'Yen', 'Rupee'], 'correct': 2},
         {'question': 'Which is the largest country by area?', 'options': ['Canada', 'China', 'USA', 'Russia'], 'correct': 3}
     ],
-    'Science': [
-        {'question': 'What is the chemical symbol for water?', 'options': ['H2O', 'CO2', 'O2', 'N2'], 'correct': 0},
-        {'question': 'What is the speed of light?', 'options': ['300,000 km/s', '150,000 km/s', '450,000 km/s', '600,000 km/s'], 'correct': 0},
-        {'question': 'What organ pumps blood through the body?', 'options': ['Liver', 'Kidney', 'Heart', 'Lungs'], 'correct': 2},
-        {'question': 'How many bones are in the human body?', 'options': ['196', '206', '216', '226'], 'correct': 1},
-        {'question': 'What gas do plants absorb from the atmosphere?', 'options': ['Oxygen', 'Nitrogen', 'Carbon Dioxide', 'Hydrogen'], 'correct': 2},
-        {'question': 'What is the powerhouse of the cell?', 'options': ['Nucleus', 'Mitochondria', 'Ribosome', 'Chloroplast'], 'correct': 1},
-        {'question': 'What is the boiling point of water?', 'options': ['90°C', '100°C', '110°C', '120°C'], 'correct': 1},
-        {'question': 'Which vitamin is produced by the sun?', 'options': ['Vitamin A', 'Vitamin B', 'Vitamin C', 'Vitamin D'], 'correct': 3}
-    ],
-    'Technology': [
+     'Technology': [
         {'question': 'Who founded Microsoft?', 'options': ['Steve Jobs', 'Bill Gates', 'Mark Zuckerberg', 'Elon Musk'], 'correct': 1},
         {'question': 'What does CPU stand for?', 'options': ['Central Processing Unit', 'Computer Personal Unit', 'Central Program Utility', 'Computer Processing Unit'], 'correct': 0},
         {'question': 'In what year was the first iPhone released?', 'options': ['2005', '2006', '2007', '2008'], 'correct': 2},
@@ -54,18 +71,8 @@ QUIZ_DATA = {
         {'question': 'In which sport would you perform a slam dunk?', 'options': ['Volleyball', 'Basketball', 'Football', 'Tennis'], 'correct': 1},
         {'question': 'How many Grand Slam tournaments are in tennis?', 'options': ['2', '3', '4', '5'], 'correct': 2},
         {'question': 'What color card is shown for a sending-off?', 'options': ['Yellow', 'Red', 'Green', 'Blue'], 'correct': 1}
-    ],
-    'Mathematics': [
-        {'question': 'What is 15 × 8?', 'options': ['110', '120', '125', '130'], 'correct': 1},
-        {'question': 'What is the value of π (pi)?', 'options': ['2.14', '3.14', '4.14', '5.14'], 'correct': 1},
-        {'question': 'What is the square root of 144?', 'options': ['10', '11', '12', '13'], 'correct': 2},
-        {'question': 'What is 25% of 200?', 'options': ['25', '50', '75', '100'], 'correct': 1},
-        {'question': 'How many sides does a hexagon have?', 'options': ['5', '6', '7', '8'], 'correct': 1},
-        {'question': 'What is 2³ (2 to the power of 3)?', 'options': ['6', '8', '9', '12'], 'correct': 1},
-        {'question': 'What is the sum of angles in a triangle?', 'options': ['90°', '180°', '270°', '360°'], 'correct': 1},
-        {'question': 'What is 1/2 + 1/4?', 'options': ['1/2', '2/3', '3/4', '1'], 'correct': 2}
     ]
-}
+   }
 
 @app.route('/')
 def index():
@@ -82,75 +89,65 @@ def start():
 
 @app.route('/categories')
 def categories():
-    if 'username' not in session:
-        return redirect(url_for('index'))
+    if 'username' not in session: return redirect(url_for('index'))
     return render_template('categories.html', username=session['username'])
 
 @app.route('/quiz/<category>')
 def quiz(category):
-    if 'username' not in session:
-        return redirect(url_for('index'))
+    if 'username' not in session: return redirect(url_for('index'))
     
     if category not in QUIZ_DATA:
         return redirect(url_for('categories'))
     
+    # Randomization logic
+    all_q = QUIZ_DATA[category].copy()
+    random.shuffle(all_q)
+    selected_q = all_q[:10] # Pick 10 random
+    
     session['category'] = category
+    session['quiz_questions'] = selected_q
     session['current_question'] = 0
     session['score'] = 0
-    session['answers'] = []
     
-    questions = QUIZ_DATA[category]
     return render_template('quiz.html', 
                          category=category,
-                         question=questions[0],
+                         question=selected_q[0],
                          question_num=1,
-                         total_questions=len(questions))
+                         total_questions=len(selected_q))
 
 @app.route('/submit_answer', methods=['POST'])
 def submit_answer():
-    if 'username' not in session or 'category' not in session:
-        return redirect(url_for('index'))
+    if 'quiz_questions' not in session: return redirect(url_for('index'))
     
-    category = session['category']
-    current_q = session['current_question']
+    questions = session['quiz_questions']
+    idx = session['current_question']
     selected = request.form.get('answer')
     
-    if selected:
-        selected = int(selected)
-        session['answers'].append(selected)
-        
-        if selected == QUIZ_DATA[category][current_q]['correct']:
-            session['score'] = session.get('score', 0) + 1
+    if selected is not None:
+        if int(selected) == questions[idx]['correct']:
+            session['score'] += 1
+            
+    session['current_question'] += 1
     
-    session['current_question'] = current_q + 1
-    
-    if session['current_question'] >= len(QUIZ_DATA[category]):
+    if session['current_question'] >= len(questions):
         return redirect(url_for('result'))
     
-    questions = QUIZ_DATA[category]
+    next_idx = session['current_question']
     return render_template('quiz.html',
-                         category=category,
-                         question=questions[session['current_question']],
-                         question_num=session['current_question'] + 1,
+                         category=session['category'],
+                         question=questions[next_idx],
+                         question_num=next_idx + 1,
                          total_questions=len(questions))
 
 @app.route('/result')
 def result():
-    if 'username' not in session or 'category' not in session:
-        return redirect(url_for('index'))
-    
-    username = session['username']
-    category = session['category']
+    if 'username' not in session: return redirect(url_for('index'))
     score = session.get('score', 0)
-    total = len(QUIZ_DATA[category])
+    total = 10
     percentage = round((score / total) * 100)
-    
-    return render_template('result.html',
-                         username=username,
-                         category=category,
-                         score=score,
-                         total=total,
-                         percentage=percentage)
+    return render_template('result.html', username=session['username'], 
+                           score=score, total=total, percentage=percentage, 
+                           category=session['category'])
 
 if __name__ == '__main__':
     app.run(debug=True)
