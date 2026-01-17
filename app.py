@@ -73,7 +73,6 @@ QUIZ_DATA = {
         {'question': 'What color card is shown for a sending-off?', 'options': ['Yellow', 'Red', 'Green', 'Blue'], 'correct': 1}
     ]
    }
-
 @app.route('/')
 def index():
     session.clear()
@@ -107,8 +106,7 @@ def quiz(category):
     session['category'] = category
     session['quiz_questions'] = selected_q
     session['current_question'] = 0
-    session['score'] = 0
-    
+    session['score'] = 0   
     return render_template('quiz.html', 
                          category=category,
                          question=selected_q[0],
