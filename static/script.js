@@ -1,130 +1,104 @@
-// 1. Audio loading (Top of script.js)
-const startSound = new Audio('sounds/start.mp3');
-const bgMusic = new Audio('sounds/bg-music.mp3');
-const correctSound = new Audio('sounds/correct.mp3');
-const wrongSound = new Audio('sounds/wrong.mp3');
-const winSound = new Audio('sounds/win.mp3');
+// 1. Audio Objects load karein (Global level par)
+const startSound = new Audio('/static/sounds/start.mp3');
+const bgMusic = new Audio('/static/sounds/bg-music.mp3');
+const correctSound = new Audio('/static/sounds/correct.mp3');
+const wrongSound = new Audio('/static/sounds/wrong.mp3');
+const winSound = new Audio('/static/sounds/win.mp3');
 
-bgMusic.loop = true; // Background music chalta rahega
-
-// 2. Start Quiz par Music (Inside startQuiz function)
-function startQuiz() {
-    startSound.play();
-    bgMusic.play();
-    // baqi code...
-}
-
-// 3. Jawab check karte waqt (Inside checkAnswer function)
-function checkAnswer(index) {
-    if (index === questions[currentQuestionIndex].correct) {
-        correctSound.play();
-    } else {
-        wrongSound.play();
-    }
-    // baqi code...
-}
-
-// 4. Result dikhate waqt (Inside showResult function)
-function showResult() {
-    bgMusic.pause(); // BG music band
-    winSound.play(); // Jeetne ki khushi mein cheer
-    // baqi code...
-}
+bgMusic.loop = true;
+bgMusic.volume = 0.3;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Page Fade-in Effect (Sabhi pages ke liye)
+    // Page Fade-in Effect
     document.body.style.opacity = '0';
     setTimeout(() => {
         document.body.style.transition = 'opacity 0.5s ease';
         document.body.style.opacity = '1';
     }, 100);
 
-    // Agar hum Result Page par hain, to confetti chalao
-    // Aapke result.html mein '.result-container' class maujood hai
+    // ========================================
+    // HAR PAGE KE LIYE LOGIC
+    // ========================================
+
+    // Browser music block karta hai jab tak user click na kare
+    document.body.addEventListener('click', () => {
+        // Agar quiz page par hain to music chalao
+        if (document.querySelector('.quiz-container') && bgMusic.paused) {
+            bgMusic.play().catch(err => console.log("Music blocked"));
+        }
+    }, { once: true });
+
+    // ========================================
+    // WELCOME PAGE (index.html)
+    // ========================================
+    const startForm = document.querySelector('.start-form');
+    if (startForm) {
+        const nameInput = document.querySelector('.name-input');
+        if (nameInput) nameInput.focus();
+
+        startForm.addEventListener('submit', () => {
+            startSound.play();
+        });
+    }
+
+    // ========================================
+    // QUIZ PAGE (quiz.html)
+    // ========================================
+    const optionInputs = document.querySelectorAll('.option-input');
+    const quizForm = document.getElementById('quizForm');
+
+    if (quizForm) {
+        optionInputs.forEach(input => {
+            input.addEventListener('change', () => {
+                // Sahi/Galat check karne ke liye logic
+                // Note: Flask submit hone se pehle sound play karein
+                const selectedLabel = input.nextElementSibling;
+                
+                // Visual feedback
+                document.querySelectorAll('.option-box').forEach(box => box.classList.remove('selected-option'));
+                selectedLabel.classList.add('selected-option');
+            });
+        });
+
+        // Submit button click par sound
+        quizForm.addEventListener('submit', () => {
+            // Yahan hum sirf click sound play kar sakte hain kyunke 
+            // Result (correct/wrong) server-side se aata hai
+            startSound.play(); 
+        });
+    }
+
+    // ========================================
+    // RESULT PAGE (result.html)
+    // ========================================
     if (document.querySelector('.result-container')) {
+        bgMusic.pause(); // Purana music band
+        winSound.play(); // Jeetne ki sound
         createConfetti();
     }
 });
 
 // ========================================
-// WELCOME PAGE (index.html)
-// ========================================
-if (document.querySelector('.name-input')) {
-    const nameInput = document.querySelector('.name-input');
-    nameInput.focus();
-    
-    nameInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const form = document.querySelector('.start-form');
-            if(nameInput.value.trim() !== "") {
-                form.submit();
-            }
-        }
-    });
-}
-
-// ========================================
-// CATEGORIES PAGE (categories.html)
-// ========================================
-const categoryCards = document.querySelectorAll('.category-card');
-categoryCards.forEach(card => {
-    card.addEventListener('mouseenter', () => {
-        card.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-    });
-});
-
-// ========================================
-// QUIZ PAGE (quiz.html)
-// ========================================
-const optionInputs = document.querySelectorAll('.option-input');
-optionInputs.forEach(input => {
-    input.addEventListener('change', () => {
-        // Purane selected options se class hatao
-        document.querySelectorAll('.option-box').forEach(box => {
-            box.classList.remove('selected-option');
-        });
-        
-        // Naye selected option par class lagao
-        const selectedBox = input.nextElementSibling;
-        selectedBox.classList.add('selected-option');
-        
-        // Ripple Effect
-        const ripple = document.createElement('div');
-        ripple.classList.add('ripple-effect');
-        selectedBox.appendChild(ripple);
-        
-        setTimeout(() => {
-            ripple.remove();
-        }, 600);
-    });
-});
-
-// ========================================
-// RESULT PAGE (result.html) - Complete Logic
+// CONFETTI LOGIC
 // ========================================
 function createConfetti() {
     const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731'];
-    const confettiCount = 60; // Thoda count badha diya hai achhe effect ke liye
-    
-    for (let i = 0; i < confettiCount; i++) {
+    for (let i = 0; i < 60; i++) {
         const confetti = document.createElement('div');
-        confetti.className = 'confetti-piece'; // CSS class
+        confetti.className = 'confetti-piece';
         confetti.style.position = 'fixed';
         confetti.style.width = '10px';
         confetti.style.height = '10px';
         confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
         confetti.style.left = Math.random() * 100 + '%';
         confetti.style.top = '-20px';
-        confetti.style.borderRadius = '2px'; // Square pieces
         confetti.style.zIndex = '1000';
         confetti.style.pointerEvents = 'none';
-        
         document.body.appendChild(confetti);
-        
-        const fallDuration = Math.random() * 3 + 2; 
+
+        const fallDuration = Math.random() * 3 + 2;
         const drift = (Math.random() - 0.5) * 200;
-        
+
         confetti.animate([
             { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
             { transform: `translateY(110vh) translateX(${drift}px) rotate(${Math.random() * 720}deg)`, opacity: 0 }
@@ -133,7 +107,6 @@ function createConfetti() {
             easing: 'ease-out'
         });
 
-        // Animation ke baad cleanup
         setTimeout(() => confetti.remove(), fallDuration * 1000);
     }
 }
