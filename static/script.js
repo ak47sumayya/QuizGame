@@ -1,4 +1,4 @@
-// 1. Audio Objects load karein (Global level par)
+// 1. Sounds Load Karein
 const startSound = new Audio('/static/sounds/start.mp3');
 const bgMusic = new Audio('/static/sounds/bg-music.mp3');
 const correctSound = new Audio('/static/sounds/correct.mp3');
@@ -9,104 +9,68 @@ bgMusic.loop = true;
 bgMusic.volume = 0.3;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Page Fade-in Effect
-    document.body.style.opacity = '0';
-    setTimeout(() => {
-        document.body.style.transition = 'opacity 0.5s ease';
-        document.body.style.opacity = '1';
-    }, 100);
-
-    // ========================================
-    // HAR PAGE KE LIYE LOGIC
-    // ========================================
-
-    // Browser music block karta hai jab tak user click na kare
+    // --- MUSIC UNLOCK (Browser Rule) ---
+    // Jab user pehli baar kahin bhi click karega, music shuru ho jayega
     document.body.addEventListener('click', () => {
-        // Agar quiz page par hain to music chalao
-        if (document.querySelector('.quiz-container') && bgMusic.paused) {
-            bgMusic.play().catch(err => console.log("Music blocked"));
+        if (bgMusic.paused) {
+            bgMusic.play().catch(e => console.log("Music waiting..."));
         }
     }, { once: true });
 
-    // ========================================
-    // WELCOME PAGE (index.html)
-    // ========================================
+    // --- 1. START SOUND (index.html) ---
     const startForm = document.querySelector('.start-form');
     if (startForm) {
-        const nameInput = document.querySelector('.name-input');
-        if (nameInput) nameInput.focus();
-
-        startForm.addEventListener('submit', () => {
+        startForm.addEventListener('submit', (e) => {
             startSound.play();
+            // Thora delay taake sound sunayi de phir page badle
+            e.preventDefault();
+            setTimeout(() => startForm.submit(), 400);
         });
     }
 
-    // ========================================
-    // QUIZ PAGE (quiz.html)
-    // ========================================
-    const optionInputs = document.querySelectorAll('.option-input');
+    // --- 2. CORRECT/WRONG LOGIC (quiz.html) ---
     const quizForm = document.getElementById('quizForm');
-
     if (quizForm) {
-        optionInputs.forEach(input => {
-            input.addEventListener('change', () => {
-                // Sahi/Galat check karne ke liye logic
-                // Note: Flask submit hone se pehle sound play karein
-                const selectedLabel = input.nextElementSibling;
-                
-                // Visual feedback
-                document.querySelectorAll('.option-box').forEach(box => box.classList.remove('selected-option'));
-                selectedLabel.classList.add('selected-option');
-            });
-        });
+        const nextBtn = document.getElementById('nextBtn');
+        const options = document.querySelectorAll('.option-input');
 
-        // Submit button click par sound
-        quizForm.addEventListener('submit', () => {
-            // Yahan hum sirf click sound play kar sakte hain kyunke 
-            // Result (correct/wrong) server-side se aata hai
-            startSound.play(); 
+        nextBtn.addEventListener('click', (e) => {
+            // Hum check karte hain ke user ne option select kiya hai ya nahi
+            const selectedOption = document.querySelector('.option-input:checked');
+            if (selectedOption) {
+                // Abhi hum yahan simple click sound baja rahe hain
+                // Kyunke asli result 'app.py' check karta hai submit ke baad
+                startSound.play(); 
+            }
         });
     }
 
-    // ========================================
-    // RESULT PAGE (result.html)
-    // ========================================
+    // --- 3. WIN SOUND & CONFETTI (result.html) ---
     if (document.querySelector('.result-container')) {
         bgMusic.pause(); // Purana music band
-        winSound.play(); // Jeetne ki sound
+        winSound.play(); // Jeetne ki khushi
         createConfetti();
     }
 });
 
-// ========================================
-// CONFETTI LOGIC
-// ========================================
+// Confetti Logic (As it is)
 function createConfetti() {
     const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731'];
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 50; i++) {
         const confetti = document.createElement('div');
-        confetti.className = 'confetti-piece';
         confetti.style.position = 'fixed';
         confetti.style.width = '10px';
         confetti.style.height = '10px';
         confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
         confetti.style.left = Math.random() * 100 + '%';
-        confetti.style.top = '-20px';
-        confetti.style.zIndex = '1000';
-        confetti.style.pointerEvents = 'none';
+        confetti.style.top = '-10px';
+        confetti.style.zIndex = '9999';
         document.body.appendChild(confetti);
-
-        const fallDuration = Math.random() * 3 + 2;
-        const drift = (Math.random() - 0.5) * 200;
-
+        
         confetti.animate([
-            { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
-            { transform: `translateY(110vh) translateX(${drift}px) rotate(${Math.random() * 720}deg)`, opacity: 0 }
-        ], {
-            duration: fallDuration * 1000,
-            easing: 'ease-out'
-        });
-
-        setTimeout(() => confetti.remove(), fallDuration * 1000);
+            { transform: 'translateY(0) rotate(0)', opacity: 1 },
+            { transform: `translateY(100vh) rotate(720deg)`, opacity: 0 }
+        ], { duration: 2000 + Math.random() * 2000 });
+        setTimeout(() => confetti.remove(), 4000);
     }
 }
