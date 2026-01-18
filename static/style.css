@@ -893,3 +893,40 @@ body {
         font-size: 5rem;
     }
 }
+/* --- Answer Feedback Classes (Add at the end) --- */
+
+.correct-flash {
+    animation: greenFlash 0.8s ease-out;
+}
+
+.wrong-flash {
+    animation: redFlash 0.8s ease-out;
+}
+
+@keyframes greenFlash {
+    0% { background: #27ae60; }
+    100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+}
+
+@keyframes redFlash {
+    0% { background: #c0392b; }
+    100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+}
+/* Screen feedback for correct/wrong answers */
+.correct-flash {
+    animation: greenFlash 0.6s ease-out;
+}
+
+.wrong-flash {
+    animation: redFlash 0.6s ease-out;
+}
+
+@keyframes greenFlash {
+    0% { background: #27ae60; }
+    100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+}
+
+@keyframes redFlash {
+    0% { background: #c0392b; }
+    100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+}

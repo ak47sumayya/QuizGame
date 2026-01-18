@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
+    <input type="hidden" id="lastResult" value="{{ last_result }}">
+
     <div class="quiz-container">
         <div class="quiz-header">
             <div class="quiz-info">
@@ -30,7 +32,7 @@
         </div>
         
         <div class="progress-bar">
-            <div class="progress-fill" style="width:(question_num / total_questions * 100) "></div>
+            <div class="progress-fill" style="width:  (question_num / total_questions) * 100 "></div>
         </div>
         
         <div class="question-container">
@@ -60,6 +62,7 @@
     </div>
     
     <script>
+        // Timer Logic
         let timeLeft = 60;
         const timerElement = document.getElementById('timer');
         const timerContainer = document.querySelector('.timer-container');
@@ -75,7 +78,9 @@
                 clearInterval(countdown);
                 form.submit();
             }
-        }, 1000);        
+        }, 1000);
+
+        // Next Button Enable Logic
         const options = document.querySelectorAll('.option-input');
         const nextBtn = document.getElementById('nextBtn');
         

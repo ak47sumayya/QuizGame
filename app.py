@@ -52,7 +52,7 @@ QUIZ_DATA = {
         {'question': 'What is the currency of Japan?', 'options': ['Yuan', 'Won', 'Yen', 'Rupee'], 'correct': 2},
         {'question': 'Which is the largest country by area?', 'options': ['Canada', 'China', 'USA', 'Russia'], 'correct': 3}
     ],
-     'Technology': [
+    'Technology': [
         {'question': 'Who founded Microsoft?', 'options': ['Steve Jobs', 'Bill Gates', 'Mark Zuckerberg', 'Elon Musk'], 'correct': 1},
         {'question': 'What does CPU stand for?', 'options': ['Central Processing Unit', 'Computer Personal Unit', 'Central Program Utility', 'Computer Processing Unit'], 'correct': 0},
         {'question': 'In what year was the first iPhone released?', 'options': ['2005', '2006', '2007', '2008'], 'correct': 2},
@@ -72,7 +72,8 @@ QUIZ_DATA = {
         {'question': 'How many Grand Slam tournaments are in tennis?', 'options': ['2', '3', '4', '5'], 'correct': 2},
         {'question': 'What color card is shown for a sending-off?', 'options': ['Yellow', 'Red', 'Green', 'Blue'], 'correct': 1}
     ]
-   }
+}
+
 @app.route('/')
 def index():
     session.clear()
@@ -98,10 +99,9 @@ def quiz(category):
     if category not in QUIZ_DATA:
         return redirect(url_for('categories'))
     
-    # Randomization logic
     all_q = QUIZ_DATA[category].copy()
     random.shuffle(all_q)
-    selected_q = all_q[:10] # Pick 10 random
+    selected_q = all_q[:10]
     
     session['category'] = category
     session['quiz_questions'] = selected_q
@@ -121,9 +121,13 @@ def submit_answer():
     idx = session['current_question']
     selected = request.form.get('answer')
     
+    # Feedback variable for Sound and Colors
+    last_result = "wrong"
+    
     if selected is not None:
         if int(selected) == questions[idx]['correct']:
             session['score'] += 1
+            last_result = "correct"
             
     session['current_question'] += 1
     
@@ -135,7 +139,8 @@ def submit_answer():
                          category=session['category'],
                          question=questions[next_idx],
                          question_num=next_idx + 1,
-                         total_questions=len(questions))
+                         total_questions=len(questions),
+                         last_result=last_result) # Result bhej raha hai
 
 @app.route('/result')
 def result():
