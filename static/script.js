@@ -1,3 +1,36 @@
+// 1. Audio loading (Top of script.js)
+const startSound = new Audio('sounds/start.mp3');
+const bgMusic = new Audio('sounds/bg-music.mp3');
+const correctSound = new Audio('sounds/correct.mp3');
+const wrongSound = new Audio('sounds/wrong.mp3');
+const winSound = new Audio('sounds/win.mp3');
+
+bgMusic.loop = true; // Background music chalta rahega
+
+// 2. Start Quiz par Music (Inside startQuiz function)
+function startQuiz() {
+    startSound.play();
+    bgMusic.play();
+    // baqi code...
+}
+
+// 3. Jawab check karte waqt (Inside checkAnswer function)
+function checkAnswer(index) {
+    if (index === questions[currentQuestionIndex].correct) {
+        correctSound.play();
+    } else {
+        wrongSound.play();
+    }
+    // baqi code...
+}
+
+// 4. Result dikhate waqt (Inside showResult function)
+function showResult() {
+    bgMusic.pause(); // BG music band
+    winSound.play(); // Jeetne ki khushi mein cheer
+    // baqi code...
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Page Fade-in Effect (Sabhi pages ke liye)
     document.body.style.opacity = '0';
