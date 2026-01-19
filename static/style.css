@@ -506,10 +506,11 @@ body {
     transform: translateX(5px);
 }
 
+/* ✅ UPDATED: Blue theme for selected answer */
 .option-input:checked + .option-box {
-    background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
-    border-color: #ff6b6b;
-    box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: #667eea;
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
 }
 
 .option-letter {
@@ -526,9 +527,10 @@ body {
     flex-shrink: 0;
 }
 
+/* ✅ UPDATED: Blue color for letter when selected */
 .option-input:checked + .option-box .option-letter {
     background: white;
-    color: #ff6b6b;
+    color: #667eea;
 }
 
 .option-text {
@@ -819,6 +821,27 @@ body {
 }
 
 /* ========================================
+   ANSWER FEEDBACK ANIMATIONS
+   ======================================== */
+.correct-flash {
+    animation: greenFlash 0.6s ease-out;
+}
+
+.wrong-flash {
+    animation: redFlash 0.6s ease-out;
+}
+
+@keyframes greenFlash {
+    0% { background: #27ae60; }
+    100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+}
+
+@keyframes redFlash {
+    0% { background: #c0392b; }
+    100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+}
+
+/* ========================================
    RESPONSIVE DESIGN
    ======================================== */
 @media (max-width: 768px) {
@@ -892,41 +915,4 @@ body {
     .trophy-icon {
         font-size: 5rem;
     }
-}
-/* --- Answer Feedback Classes (Add at the end) --- */
-
-.correct-flash {
-    animation: greenFlash 0.8s ease-out;
-}
-
-.wrong-flash {
-    animation: redFlash 0.8s ease-out;
-}
-
-@keyframes greenFlash {
-    0% { background: #27ae60; }
-    100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-}
-
-@keyframes redFlash {
-    0% { background: #c0392b; }
-    100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-}
-/* Screen feedback for correct/wrong answers */
-.correct-flash {
-    animation: greenFlash 0.6s ease-out;
-}
-
-.wrong-flash {
-    animation: redFlash 0.6s ease-out;
-}
-
-@keyframes greenFlash {
-    0% { background: #27ae60; }
-    100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-}
-
-@keyframes redFlash {
-    0% { background: #c0392b; }
-    100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 }

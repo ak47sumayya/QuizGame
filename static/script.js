@@ -1,9 +1,7 @@
-// 1. Audio Objects
+// 1. Audio Objects - Only background music and start sound
 const startSound = new Audio('/static/sounds/start.mp3');
 const bgMusic = new Audio('/static/sounds/bg-music.mp3');
 const winSound = new Audio('/static/sounds/win.mp3');
-const correctSound = new Audio('/static/sounds/correct.mp3');
-const wrongSound = new Audio('/static/sounds/wrong.mp3');
 
 bgMusic.loop = true;
 bgMusic.volume = 0.2; 
@@ -30,17 +28,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- B. FEEDBACK LOGIC (Green/Red Flash) ---
+    // --- B. FEEDBACK LOGIC (Green/Red Flash) - REMOVED SOUNDS ---
     const lastResultElement = document.getElementById('lastResult');
     if (lastResultElement) {
         const lastResult = lastResultElement.value;
         if (lastResult === 'correct') {
-            correctSound.play();
-            document.body.classList.add('correct-flash'); // CSS class use karein
+            // No sound - only visual feedback
+            document.body.classList.add('correct-flash');
             setTimeout(() => document.body.classList.remove('correct-flash'), 1000);
         } 
         else if (lastResult === 'wrong') {
-            wrongSound.play();
+            // No sound - only visual feedback
             document.body.classList.add('wrong-flash');
             setTimeout(() => document.body.classList.remove('wrong-flash'), 1000);
         }
@@ -67,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Confetti Function (Waisa hi rahega)
+// Confetti Function
 function createConfetti() {
     const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731'];
     for (let i = 0; i < 60; i++) {
