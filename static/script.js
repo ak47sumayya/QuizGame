@@ -1,105 +1,88 @@
-// 1. Audio Objects - Only background music and start sound
-const startSound = new Audio('/static/sounds/start.mp3');
-const bgMusic = new Audio('/static/sounds/bg-music.mp3');
-const winSound = new Audio('/static/sounds/win.mp3');
+// 1. Global Audio Objects
+const bgMusic = new Audio(window.location.origin + '/static/sounds/bg-music.mp3');
+const startSound = new Audio(window.location.origin + '/static/sounds/start.mp3');
+const winSound = new Audio(window.location.origin + '/static/sounds/win.mp3');
 
 bgMusic.loop = true;
-bgMusic.volume = 0.2; 
+bgMusic.volume = 0.2;
 
-// Button click par call hone wala function
+// 2. Music Resume Function
+const resumeBG = () => {
+    if (sessionStorage.getItem('quizMusicActive') === 'true') {
+        bgMusic.play().catch(() => {
+            console.log("Waiting for user interaction...");
+        });
+    }
+};
+
+// Start Experience (Welcome Page Button)
 function startQuizExperience() {
     startSound.play();
-    bgMusic.play().then(() => {
-        // Save state so next pages know music should be playing
-        sessionStorage.setItem('quizMusicActive', 'true');
-    }).catch(e => console.log("Music waiting for interaction"));
+    sessionStorage.setItem('quizMusicActive', 'true');
+    resumeBG();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // // --- A. BACKGROUND MUSIC AUTO-RESUME ---
-    // // Agar music pehle start ho chuki hai, to agle page par khud chalao
-    // if (sessionStorage.getItem('quizMusicActive') === 'true' && !document.querySelector('.result-container')) {
-    //     bgMusic.play().catch(() => {
-    //         // Agar browser block kare, to screen par kahin bhi click hote hi chala do
-    //         document.body.addEventListener('click', () => {
-    //             bgMusic.play();
-    //         }, { once: true });
-    //     });
-    // }
-    // --- A. BACKGROUND MUSIC AUTO-RESUME (Updated Fix) ---
-    if (sessionStorage.getItem('quizMusicActive') === 'true' && !document.querySelector('.result-container')) {
-        
-        const tryPlayMusic = () => {
-            bgMusic.play().then(() => {
-                // Agar music chal gaya, to faltu event listeners hata do
-                window.removeEventListener('click', tryPlayMusic);
-                window.removeEventListener('touchstart', tryPlayMusic);
-            }).catch(e => {
-                console.log("Waiting for user interaction to resume music...");
-            });
-        };
+    // A. Page load hote hi koshish karo
+    resumeBG();
 
-        // 1. Foran koshish karo (shayad cache se chal jaye)
-        tryPlayMusic();
+    // B. Sab se bada FIX: Naye page par user kahin bhi click kare (jaise MCQ select kare), 
+    // music foran start ho jayega.
+    window.addEventListener('click', resumeBG, { once: true });
+    window.addEventListener('touchstart', resumeBG, { once: true });
 
-        // 2. Agar browser ne block kiya, to user ke pehle click par chala do
-        window.addEventListener('click', tryPlayMusic, { once: true });
-        window.addEventListener('touchstart', tryPlayMusic, { once: true }); // Mobile ke liye
-    }
-
-    // --- B. FEEDBACK LOGIC (Green/Red Flash) - REMOVED SOUNDS ---
+    // C. Form submission ya Category change par state maintain rakhen
+    const allLinks = document.querySelectorAll('a, button, .category-card');
+    allLinks.forEach(item => {
+        item.addEventListener('click', () => {
+            // Click karte waqt hi state confirm kar dein
+            if (!document.querySelector('.result-container')) {
+                sessionStorage.setItem('quizMusicActive', 'true');
+            }
+        });
+    });
+    // --- 1. GREEN/RED FLASH LOGIC (Sab se Pehle) ---
     const lastResultElement = document.getElementById('lastResult');
     if (lastResultElement) {
         const lastResult = lastResultElement.value;
         if (lastResult === 'correct') {
-            // No sound - only visual feedback
             document.body.classList.add('correct-flash');
             setTimeout(() => document.body.classList.remove('correct-flash'), 1000);
         } 
         else if (lastResult === 'wrong') {
-            // No sound - only visual feedback
             document.body.classList.add('wrong-flash');
             setTimeout(() => document.body.classList.remove('wrong-flash'), 1000);
         }
     }
 
-    // --- C. QUIZ PAGE INTERACTION ---
-    const quizForm = document.getElementById('quizForm');
-    if (quizForm) {
-        const options = document.querySelectorAll('.option-input');
-        options.forEach(opt => {
-            opt.addEventListener('change', () => {
-                startSound.currentTime = 0;
-                startSound.play();
-            });
+    // D. MCQ Page: Jab user option select kare tab sound aur BG music dono handle hon
+    const options = document.querySelectorAll('.option-input');
+    options.forEach(opt => {
+        opt.addEventListener('change', () => {
+            startSound.currentTime = 0;
+            startSound.play();
+            resumeBG(); // Is click se browser audio allow kar dega
         });
-    }
+    });
 
-    // --- D. RESULT PAGE ---
+    // E. Result Page Logic
     if (document.querySelector('.result-container')) {
-        sessionStorage.removeItem('quizMusicActive'); // Music stop state
+        sessionStorage.removeItem('quizMusicActive'); 
         bgMusic.pause();
         winSound.play();
-        createConfetti();
+        if (typeof createConfetti === 'function') createConfetti();
     }
 });
 
-// Confetti Function
+// Confetti Function (Same as yours)
 function createConfetti() {
     const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731'];
     for (let i = 0; i < 60; i++) {
         const confetti = document.createElement('div');
-        confetti.style.cssText = `
-            position: fixed; width: 10px; height: 10px; z-index: 9999;
-            background-color: ${colors[Math.floor(Math.random() * colors.length)]};
-            left: ${Math.random() * 100}%; top: -20px; pointer-events: none;
-        `;
+        confetti.style.cssText = `position: fixed; width: 10px; height: 10px; z-index: 9999; background-color: ${colors[Math.floor(Math.random() * colors.length)]}; left: ${Math.random() * 100}%; top: -20px; pointer-events: none;`;
         document.body.appendChild(confetti);
-        confetti.animate([
-            { transform: 'translateY(0) rotate(0)', opacity: 1 },
-            { transform: `translateY(100vh) rotate(720deg)`, opacity: 0 }
-        ], { duration: 2500 });
+        confetti.animate([{ transform: 'translateY(0) rotate(0)', opacity: 1 }, { transform: `translateY(100vh) rotate(720deg)`, opacity: 0 }], { duration: 2500 });
         setTimeout(() => confetti.remove(), 4000);
     }
 }
