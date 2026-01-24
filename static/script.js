@@ -17,15 +17,35 @@ function startQuizExperience() {
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- A. BACKGROUND MUSIC AUTO-RESUME ---
-    // Agar music pehle start ho chuki hai, to agle page par khud chalao
+    // // --- A. BACKGROUND MUSIC AUTO-RESUME ---
+    // // Agar music pehle start ho chuki hai, to agle page par khud chalao
+    // if (sessionStorage.getItem('quizMusicActive') === 'true' && !document.querySelector('.result-container')) {
+    //     bgMusic.play().catch(() => {
+    //         // Agar browser block kare, to screen par kahin bhi click hote hi chala do
+    //         document.body.addEventListener('click', () => {
+    //             bgMusic.play();
+    //         }, { once: true });
+    //     });
+    // }
+    // --- A. BACKGROUND MUSIC AUTO-RESUME (Updated Fix) ---
     if (sessionStorage.getItem('quizMusicActive') === 'true' && !document.querySelector('.result-container')) {
-        bgMusic.play().catch(() => {
-            // Agar browser block kare, to screen par kahin bhi click hote hi chala do
-            document.body.addEventListener('click', () => {
-                bgMusic.play();
-            }, { once: true });
-        });
+        
+        const tryPlayMusic = () => {
+            bgMusic.play().then(() => {
+                // Agar music chal gaya, to faltu event listeners hata do
+                window.removeEventListener('click', tryPlayMusic);
+                window.removeEventListener('touchstart', tryPlayMusic);
+            }).catch(e => {
+                console.log("Waiting for user interaction to resume music...");
+            });
+        };
+
+        // 1. Foran koshish karo (shayad cache se chal jaye)
+        tryPlayMusic();
+
+        // 2. Agar browser ne block kiya, to user ke pehle click par chala do
+        window.addEventListener('click', tryPlayMusic, { once: true });
+        window.addEventListener('touchstart', tryPlayMusic, { once: true }); // Mobile ke liye
     }
 
     // --- B. FEEDBACK LOGIC (Green/Red Flash) - REMOVED SOUNDS ---
